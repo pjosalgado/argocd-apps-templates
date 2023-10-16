@@ -1,0 +1,11 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: semaphore-configmap
+  namespace: semaphore
+data:
+  dbDialect: mysql
+  mariadbHost: mariadb-service
+  mariadbPort: "3306"
+  playbooksPath: /ansible/playbooks

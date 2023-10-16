@@ -1,0 +1,14 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: echo-server-service
+  namespace: testing
+spec:
+  ports:
+    - name: http-port
+      port: 8080
+      targetPort: http-port
+      protocol: TCP
+  selector:
+    app: echo-server-deployment

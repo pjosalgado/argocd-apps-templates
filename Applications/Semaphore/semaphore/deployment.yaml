@@ -1,0 +1,91 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: semaphore-deployment
+  namespace: semaphore
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: semaphore-deployment
+  template:
+    metadata:
+      labels:
+        app: semaphore-deployment
+        version: "v2.9.37"
+    spec:
+      containers:
+        - name: semaphore
+          image: semaphoreui/semaphore:v2.9.37
+          ports:
+            - name: http-port
+              containerPort: 3000
+          env:
+            - name: SEMAPHORE_ADMIN
+              valueFrom:
+                secretKeyRef:
+                  name: semaphore-secret
+                  key: username
+            - name: SEMAPHORE_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: semaphore-secret
+                  key: password
+            - name: SEMAPHORE_ADMIN_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: semaphore-secret
+                  key: name
+            - name: SEMAPHORE_ADMIN_EMAIL
+              valueFrom:
+                secretKeyRef:
+                  name: semaphore-secret
+                  key: email
+            - name: SEMAPHORE_DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: mariadb-secret
+                  key: username
+            - name: SEMAPHORE_DB_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: mariadb-secret
+                  key: password
+            - name: SEMAPHORE_DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: semaphore-configmap
+                  key: mariadbHost
+            - name: SEMAPHORE_DB_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: semaphore-configmap
+                  key: mariadbPort
+            - name: SEMAPHORE_DB_DIALECT
+              valueFrom:
+                configMapKeyRef:
+                  name: semaphore-configmap
+                  key: dbDialect
+            - name: SEMAPHORE_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: mariadb-configmap
+                  key: database
+            - name: SEMAPHORE_PLAYBOOK_PATH
+              valueFrom:
+                configMapKeyRef:
+                  name: semaphore-configmap
+                  key: playbooksPath
+          volumeMounts:
+            - name: playbooks
+              mountPath: /ansible/playbooks
+            - name: shared
+              mountPath: /ansible/shared
+      volumes:
+        - name: playbooks
+          persistentVolumeClaim:
+            claimName: semaphore-playbooks-persistentvolumeclaim
+        - name: shared
+          persistentVolumeClaim:
+            claimName: semaphore-shared-persistentvolumeclaim

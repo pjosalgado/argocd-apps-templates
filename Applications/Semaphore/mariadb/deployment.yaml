@@ -1,0 +1,46 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mariadb-deployment
+  namespace: semaphore
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mariadb-deployment
+  template:
+    metadata:
+      labels:
+        app: mariadb-deployment
+        version: "10.4.15"
+    spec:
+      containers:
+        - name: mariadb
+          image: jc21/mariadb-aria:10.4.15
+          ports:
+            - name: http-port
+              containerPort: 3306
+          env:
+            - name: MYSQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: mariadb-secret
+                  key: username
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mariadb-secret
+                  key: password
+            - name: MYSQL_DATABASE
+              valueFrom:
+                configMapKeyRef:
+                  name: mariadb-configmap
+                  key: database
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/mysql
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: mariadb-persistentvolumeclaim

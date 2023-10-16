@@ -1,0 +1,15 @@
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nginxdemos-persistentvolumeclaim
+  namespace: nfs-testing
+  annotations:
+    nfs.io/storage-path: nginxdemos
+spec:
+  storageClassName: nfs-client
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 100Mi
